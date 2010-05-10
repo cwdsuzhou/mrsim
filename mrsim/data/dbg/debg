@@ -1,0 +1,90 @@
+
+ INFO GUISimulator:114 - <init>- done
+Initialising...
+
+ INFO HTopology:112 - initGridSim- Initializing GridSim package
+Initialising...
+
+ INFO HSimulator:64 - initSimulator- creat new Result dir /home/hadoop/workspace/work/hadoop.simulator/results/26-27-Apr-2010 19:57:55
+
+ INFO HJobTracker:311 - createEntities- create topology
+
+ INFO HJobTracker:314 - createEntities- config.Heartbeat:1.0,	read topology.getName:rack 0
+
+ INFO HJobTracker:318 - createEntities- init NetEnd from rack
+
+ INFO GUISimulator:389 - mnuSimStartActionPerformed- simulator has started simulator
+
+ INFO HSimulator:106 - startSimulator- Starting simulator version
+
+ INFO HSimulator:117 - startSimulator- trace level200
+
+ INFO HSimulator:120 - startSimulator- graph file: /home/hadoop/workspace/work/hadoop.simulator/results/26-27-Apr-2010 19:57:55/graph.sjg
+
+ INFO HSimulator:125 - startSimulator- going to call Sim_system.run()
+Entities started.
+Entity huser has no body().
+
+ INFO HJobTracker:129 - body- start entity
+
+ INFO SimoTreeCollector:94 - body- add rack {m1=m1}
+
+ INFO GUISimulator:394 - mnuSimStopActionPerformed- going to stop simulator
+
+ INFO HTopology:252 - stopSimulation- Stopping NetEnd Simulation
+
+ INFO NetEnd:243 - stopEntity- stop entity
+
+ INFO HTopology:257 - stopSimulation- Stopping Routers
+
+ INFO HTopology:262 - stopSimulation- stop links
+
+ INFO HJobTracker:622 - stopSimulation- send end of simualtion 10.0
+
+ INFO InMemFSMergeThread:71 - body- m1-reduce-0-inMemFSMergeThread END_OF_SIMULATION 10.0
+
+ INFO CPU:148 - body- cpu_m1 END_OF_SIMULATION 10.0
+
+ INFO InMemFSMergeThread:71 - body- m1-reduce-0-inMemFSMergeThread END_OF_SIMULATION 10.0
+
+ INFO HDD:148 - body- hdd_m1 END_OF_SIMULATION 10.0
+
+ INFO InMemFSMergeThread:71 - body- m1-reduce-1-inMemFSMergeThread END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-reduce-0 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-map-1 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-map-2 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-map-0 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-reduce-1 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-map-3 END_OF_SIMULATION 10.0
+
+ INFO NetEnd:100 - body- m1 end simulation at time 10.0
+
+ INFO HTask:166 - body- m1-map-0 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-map-1 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-map-2 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-map-3 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-reduce-0 END_OF_SIMULATION 10.0
+
+ INFO HTask:166 - body- m1-reduce-1 END_OF_SIMULATION 10.0
+
+ INFO SimoTreeCollector:78 - body- simotree END_OF_SIMULATION 10.0
+
+ INFO InMemFSMergeThread:71 - body- m1-reduce-1-inMemFSMergeThread END_OF_SIMULATION 10.0
+
+ INFO HJobTracker:149 - body- receive end of simulation
+Exception in thread "Thread-7" eduni.simjava.Sim_exception: Sim_system: Attempt to send to a null entity detected.
+	at eduni.simjava.Sim_system.process_event(Sim_system.java:751)
+	at eduni.simjava.Sim_system.run_tick(Sim_system.java:549)
+	at eduni.simjava.Sim_system.run(Sim_system.java:1843)
+	at hasim.gui.HSimulator.startSimulator(HSimulator.java:127)
+	at hasim.gui.HSimulator.run(HSimulator.java:158)

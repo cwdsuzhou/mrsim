@@ -1,0 +1,50 @@
+{
+	"jobName":"job_01",
+	
+	"numberOfMappers":16,
+	"numberOfReducers":2,
+	
+	"data":{ "name":"data_1", "size":1058946980.0, "records":69424600.0, 
+			"location":"m1", "replica":["m1"]},
+	
+	"inputSplits":[],
+		
+	"outputSplits":[],
+	
+	
+	"useCombiner":false,
+	
+	"useCompression":false,
+
+
+
+
+	
+	
+	"memeoryLimit":130514944.0,
+	
+	
+	"algorithm":{
+		"mapCost":100.0,
+		"mapSize":5.769283,
+		"mapRecords":1.0,
+		"mapOutAvRecordSize":88.0,
+		
+		"combineCost":1.0,
+		"combineSize":1.0,
+		"combineRecords":1.0,
+
+		"combineGroups":1.0,
+		"combineOutAvRecordSize":1.0,
+		"combineOutAvRecordSize_add":0.0,
+	
+		
+		"reduceCost":1000.0,
+		"reduceRecords":1.1523e-7,
+		"reduceOutAvRecordSize":91.875,
+		
+		"compressionCost":1.0,
+		"uncompressionCost":1.0,
+		"compressionSize":1.0
+}
+}

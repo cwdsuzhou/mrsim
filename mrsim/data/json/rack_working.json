@@ -1,0 +1,47 @@
+{ "machines" : [
+
+		{ "baudRate" : 1000.0,
+            "cpu" : { "cores" : 4,
+                "speed" : 500000.0
+              },
+            "hardDisk" : { "capacity" : 40000.0,
+                "read" : 30000,
+                "seekTime" : 1.0,
+                "write" : 30000
+              },
+            "hostName" : "m1",
+            "mapperVirtualMemory" : 0.0,
+            "maxMapper" : 4,
+            "maxReducer" : 2,
+            "reducerVirtualMemory" : 0.0,
+            "virtualMemory" : 200.0
+          },
+{ "baudRate" : 1000.0,
+            "cpu" : { "cores" : 4,
+                "speed" : 500000.0
+              },
+            "hardDisk" : { "capacity" : 40000.0,
+                "read" : 30000,
+                "seekTime" : 1.0,
+                "write" : 30000
+              },
+            "hostName" : "m1",
+            "mapperVirtualMemory" : 0.0,
+            "maxMapper" : 4,
+            "maxReducer" : 2,
+            "reducerVirtualMemory" : 0.0,
+            "virtualMemory" : 200.0
+          }
+ 				],
+      "router" : "r_01",
+      "heartbeat":1.0,
+      "propDelay":2.0,
+      "maxIM":100000,
+      "deltaCPU":50000.0,
+	  "deltaHDD":50000.0,
+      "flowType":true,
+      "hlogLevel":"info"
+      
+    }
+    
+   

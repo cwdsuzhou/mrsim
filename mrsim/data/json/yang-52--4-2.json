@@ -1,0 +1,65 @@
+{
+	"jobName":"job_01",
+	
+	"numberOfMappers":25,
+	"numberOfReducers":1,
+	
+	"data":{ "name":"data_1", "size":2954256.0, "records":10000.0, 
+			"location":"m1", "replica":[]},
+	
+	"inputSplits":[],
+		
+	"outputSplits":[],
+	
+	
+	"useCombiner":false,
+	
+	"useCompression":false,
+
+
+
+
+	
+	"ioSortMb":1.0,
+	"ioSortSpillPercent":0.80,
+	"ioSortRecordPercent":0.05,
+	
+	"ioSortFactor":10,
+	
+	"mapReduceParallelCopies":5,
+		
+	"mapredChildJavaOpts":5,
+		
+	"mapredJobShuffleInputBufferPercent":0.70,
+		
+	"mapredJobShuffleMergePercent":0.66,
+		
+	"mapredInmemMergeThreshold":10,
+	
+	"memeoryLimit":5229772.0,
+	
+	
+	"algorithm":{
+		"mapCost":100.0,
+		"mapSize":50.0,
+		"mapRecords":50.0,
+		"mapOutAvRecordSize":12.0,
+		
+		"combineCost":1.0,
+		"combineSize":1.0,
+		"combineRecords":1.0,
+
+		"combineGroups":1.0,
+		"combineOutAvRecordSize":1.0,
+		"combineOutAvRecordSize_add":0.0,
+	
+		
+		"reduceCost":1.0,
+		"reduceRecords":0.198732,
+		"reduceOutAvRecordSize":8.0,
+		
+		"compressionCost":1.0,
+		"uncompressionCost":1.0,
+		"compressionSize":1.0
+}
+}
