@@ -612,25 +612,7 @@ extends HPriorityQueue implements HIterator {
 		return outmrg;
 	}
 
-//	public static Datum mergeToHardCombine(int factor,int inMem,Sim_entity entity, HLogger mlog,
-//			HDD hdd, HCounter counter, Collection<Datum> segments, HCombiner combiner){
-//		
-//		HMergeQueue queu=new HMergeQueue(segments);
-//		Datum outmrg=queu.merge(factor, inMem, entity, mlog, hdd, counter, combiner);
-//			
-//		hdd.write(outmrg.size, entity, HTAG.merg_write.id(), outmrg);
-//		
-//		Datum outmrgReturn=(Datum) Datum.collectOne(entity, HTAG.merg_write.id());
-//		
-//		assert outmrg==outmrgReturn;
-//		
-//		counter.inc(CTag.SPILLED_RECORDS, outmrg.records);
-//		counter.inc(CTag.FILE_BYTES_WRITTEN, outmrg.size);
-//		
-//		outmrg.setInMemory(false);
-//		return outmrg;
-//	}
-//	
+
 	public static Datum mergeToHard(int factor,int inMem,Sim_entity entity,
 			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments, HCombiner combiner){
 		
@@ -650,129 +632,7 @@ extends HPriorityQueue implements HIterator {
 		outmrg.setInMemory(false);
 		return outmrg;
 	}
-//
-//	public HIterator merge(int factor,int inMem, double readsCounter,double writesCounter){
-//
-//		logger.info("Merging " + segments.size() + " sorted segments");
-//
-//		//create the MergeStreams from the sorted map created in the constructor
-//		//and dump the final output to a file
-//		int numSegments = segments.size();
-//		int origFactor = factor;
-//		int passNo = 1;
-//		do {
-//			//get the factor for this pass of merge. We assume in-memory segments
-//			//are the first entries in the segment list and that the pass factor
-//			//doesn't apply to them
-//			factor = getPassFactor(factor, passNo, numSegments - inMem);
-//			if (1 == passNo) {
-//				factor += inMem;
-//			}
-//			List<Datum> segmentsToMerge =new ArrayList<Datum>();
-//			int segmentsConsidered = 0;
-//			int numSegmentsToConsider = factor;
-//			long startBytes = 0; // starting bytes of segments of this merge
-//			while (true) {
-//				//extract the smallest 'factor' number of segments  
-//				//Call cleanup on the empty segments (no key/value data)
-//				List<Datum> mStream = 
-//					getSegmentDescriptors(numSegmentsToConsider, segments);
-//
-//				for ( int i=0; i< mStream.size(); i++) {
-//					Datum segment = mStream.get(i);
-//					// Initialize the segment at the last possible moment;
-//					// this helps in ensuring we don't use buffers until we need them
-//					// segment.init(readsCounter);
-//					boolean hasNext = i < mStream.size();
-//					startBytes += segment.size;
-//
-//					if (hasNext) {
-//						segmentsToMerge.add(segment);
-//						segmentsConsidered++;
-//					}
-//					else {
-//						numSegments--; //we ignore this segment for the merge
-//					}
-//				}
-//				//if we have the desired number of segments
-//				//or looked at all available segments, we break
-//				if (segmentsConsidered == factor || 
-//						segments.size() == 0) {
-//					break;
-//				}
-//
-//				numSegmentsToConsider = factor - segmentsConsidered;
-//			}
-//
-//			//feed the streams to the priority queue
-//			clear();
-//			for (Datum segment : segmentsToMerge) {
-//				put(segment);
-//				readsCounter += segment.size;
-//
-//			}
-//
-//			//if we have lesser number of segments remaining, then just return the
-//			//iterator, else do another single level merge
-//			if (numSegments <= factor) {
-//				// Reset totalBytesProcessed to track the progress of the final merge.
-//				// This is considered the progress of the reducePhase, the 3rd phase
-//				// of reduce task. Currently totalBytesProcessed is not used in sort
-//				// phase of reduce task(i.e. when intermediate merges happen).
-//				totalBytesProcessed = startBytes;
-//
-//				//calculate the length of the remaining segments. Required for 
-//				//calculating the merge progress
-//				long totalBytes = 0;
-//				for (int i = 0; i < segmentsToMerge.size(); i++) {
-//					totalBytes += segmentsToMerge.get(i).size;
-//				}
-//				if (totalBytes != 0) //being paranoid
-//					progPerByte = 1.0f / (float)totalBytes;
-//
-//				if (totalBytes != 0)
-//					mergeProgress.set(totalBytesProcessed * progPerByte);
-//				else
-//					mergeProgress.set(1.0f); // Last pass and no segments left - we're done
-//
-//				logger.info("Down to the last merge-pass, with " + numSegments + 
-//						" segments left of total size: " + totalBytes + " bytes");
-//				logger.info("total bytes proccessed "+ totalBytesProcessed);
-//				logger.info("read Counter "+ (readsCounter/2));
-//				logger.info("write Counter "+ ((readsCounter+totalBytes)/2));
-//				return this;
-//			} else {
-//				logger.info("Merging " + segmentsToMerge.size() + 
-//						" intermediate segments out of a total of " + 
-//						(segments.size()+segmentsToMerge.size()));
-//
-//				//we want to spread the creation of temp files on multiple disks if 
-//				//available under the space constraints
-//				long approxOutputSize = 0; 
-//				for (Datum s : segmentsToMerge) {
-//					approxOutputSize += s.size * (1+ CHKSUM_AS_FRACTION );
-//				}
-//				Datum tempSegment = new Datum("m_" + segments.size(),
-//						approxOutputSize, 0.0);
-//
-//				//TODO try to write files here writeFile(this, writer, reporter, conf);
-//				//we finished one single level merge; now clean up the priority 
-//				//queue
-//				this.clear();
-//
-//
-//				segments.add(tempSegment);
-//				numSegments = segments.size();
-//				Collections.sort(segments, segmentComparator);
-//
-//				passNo++;
-//			}
-//			//we are worried about only the first pass merge factor. So reset the 
-//			//factor to what it originally was
-//			factor = origFactor;
-//		} while(true);
-//
-//	}
+
 
 	/**
 	 * Determine the number of segments to merge in a given pass. Assuming more
