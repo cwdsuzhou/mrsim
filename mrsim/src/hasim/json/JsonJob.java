@@ -143,7 +143,8 @@ public class JsonJob {
 	private int numberOfMappers=4,numberOfReducers=2;
 	private List<JsonDatum> outputSplits= new ArrayList<JsonDatum>();
 	
-	private boolean useCombiner=false,useCompression=false;
+	private boolean useCombiner=false;
+	private boolean useCompression=false;
 
 	public JsonAlgorithm getAlgorithm() {
 		return algorithm;

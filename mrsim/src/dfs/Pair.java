@@ -37,6 +37,7 @@ public class Pair<K,V>{
 	
 	@Override
 	public boolean equals(Object obj) {
+		if( obj == null)return false;
 		Pair o=(Pair<K, V>)obj;
 		return k==o.k && v==o.v;
 	}

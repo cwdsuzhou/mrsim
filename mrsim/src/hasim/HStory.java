@@ -95,64 +95,77 @@ public abstract class HStory implements HLoggerInterface{
 	}
 
 	public Datum map(Datum spill){
+		
+		counters.inc(CTag.HDFS_BYTES_READ, spill.size);
+		counters.inc(CTag.MAP_INPUT_RECORDS, spill.records);
+		counters.inc(CTag.MAP_INPUT_SIZE, spill.size);
+
 		CPU cpu=task.getTaskTracker().getCpu();
 		HDD hdd=task.getTaskTracker().getHdd();
 		HCopier copier=task.getJobTracker().getCopier();
 		
-		double oneRecordSize=alg.getMapOutAvRecordSize();
+		double mapOutAvRecordSize=alg.getMapOutAvRecordSize();
 		if(job.getNumberOfReducers()>0){
-			oneRecordSize=(alg.getMapOutAvRecordSize()+ REF_2);
+			mapOutAvRecordSize=(alg.getMapOutAvRecordSize()+ REF_2);
 		}
 		
 		
-		double mapOutPutBytes= alg.getMapOutAvRecordSize()* spill.records;
+		// double mapOutPutBytes= alg.getMapOutAvRecordSize()* spill.records;
 
-		double cpuCost=spill.records* alg.getMapCost();
-		double outRecords=spill.records*alg.getMapRecords();
-		double outSize=outRecords* oneRecordSize;
-//		double outSize=5852245050.0;
-		
-		//import spill over the HDFS 
-//		copier.copy(spill.getLocation(), task.getLocation(),
-//				spill.size, task, HTAG.import_split.id(), spill, Type.hard_mem);
+		double cpuCost = spill.records * alg.getMapCost();
+		double mapOutRecords = spill.records * alg.getMapRecords();
+		double mapOutSize = mapOutRecords * mapOutAvRecordSize;
 
-		
 		//process the map
 		cpu.work(cpuCost, task.get_id(), HTAG.cpu_split.id(), spill);
-
 		Datum cpuReturn=(Datum)Datum.collectOne(task, HTAG.cpu_split.id);
 		assert cpuReturn==spill;
 		
+		Datum outSpill =new Datum(spill.name+"-out",mapOutSize, mapOutRecords);
+		Datum outSpillCombined=outSpill;
+
 		int numReducers=job.getNumberOfReducers();
 		if(numReducers==0){
+			//write outspill directly to hdfs
 			int replication=job.getReplication();
 			copier.hdfsReplicate(replication,task.location, 
-					outSize, task, HTAG.hdd_split.id(), spill);
-			counters.inc(CTag.HDFS_BYTES_WRITTEN, outSize);
+					mapOutSize, task, HTAG.hdd_split.id(), spill);
+			counters.inc(CTag.HDFS_BYTES_WRITTEN, mapOutSize);
 			Datum.collectOne(task ,	HTAG.hdd_split.id);
 
 		}else{
-		//write outspill to file
-			hdd.write(outSize, task, HTAG.hdd_split.id(), spill);
-			Datum.collectOne(task ,	HTAG.hdd_split.id);
-			counters.inc(CTag.MAP_INPUT_RECORDS, spill.records);
-		
-			counters.inc(CTag.MAP_OUTPUT_BYTES, mapOutPutBytes);
-			counters.inc(CTag.MAP_OUTPUT_RECORDS, outRecords);
+		//sort, combine, and write outspill to file
 			
-			counters.inc(CTag.FILE_BYTES_WRITTEN, outSize);
-			counters.inc(CTag.SPILLED_RECORDS, outRecords);
+			//sort and combine before spilling
+			HCombiner combiner = jobinfo.getCombiner();
+			if(combiner != null){
+				hlog.info("spill combine pass combine input "+outSpill.records );
+
+				counters.inc(CTag.COMBINE_INPUT_RECORDS, outSpill.records);
+				outSpillCombined = combiner.combine(outSpill);
+				//cpu combine cost
+				counters.inc(CTag.COMBINE_OUTPUT_RECORDS, outSpillCombined.records);
+				hlog.info("spill combine pass combine out "+outSpillCombined.records );
+
+			}
+			
+			hdd.write(outSpillCombined.size, task, HTAG.hdd_split.id(), outSpillCombined);
+			Datum.collectOne(task ,	HTAG.hdd_split.id);
+			
+		
+			counters.inc(CTag.MAP_OUTPUT_BYTES, outSpill.size);
+			counters.inc(CTag.MAP_OUTPUT_RECORDS, outSpill.records);
+			
+			counters.inc(CTag.FILE_BYTES_WRITTEN, outSpillCombined.size);
+			counters.inc(CTag.SPILLED_RECORDS, outSpillCombined.records);
 		}
 		
 		
-		counters.inc(CTag.HDFS_BYTES_READ, spill.size);
-		counters.inc(CTag.MAP_INPUT_SIZE, spill.size);
 		
-		
-		Datum result=new Datum(spill.getName()+"-m",outSize,outRecords);
-		result.setInMemory(false);
+//		Datum result=new Datum(spill.getName()+"-m",mapOutSize,mapOutRecords);
+		outSpillCombined.setInMemory(false);
 
-		return result;
+		return outSpillCombined;
 	}
 	
 	public Datum reduce(Datum dToReduce){

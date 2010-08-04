@@ -1352,6 +1352,11 @@ public class SJGV extends JFrame implements ActionListener, MouseListener {
 
   
   public static void callMain(String fileName) {
+	  if( ! new File(fileName).exists()){
+		  JOptionPane.showMessageDialog(null, "File "+ fileName + 
+		  		" does not exist");
+		  return;
+	  }
       if (fileName.endsWith(suffix)) {
         SJGV gui = new SJGV(fileName, System.getProperty("user.dir"));
       } else {

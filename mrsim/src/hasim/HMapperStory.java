@@ -178,16 +178,16 @@ public class HMapperStory extends HStory{
 		return name;
 	}
 	public String toString2(){
-		String result="";
+		StringBuffer result=new StringBuffer();
 		try {
 			Class cls=Class.forName(this.getClass().getName());
 			Field[] flds= cls.getDeclaredFields();
 			for (Field fld : flds) 
-				result+= "\n"+fld.getName()+":"+fld.get(this);
+				result.append( "\n"+fld.getName()+":"+fld.get(this));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return result;
+		return result.toString();
 	}
 
 	public static void main(String[] args) throws Exception{
@@ -276,7 +276,7 @@ public class HMapperStory extends HStory{
 
 			if(outSpills.size()>1){
 			outputSplit=HMergeQueue.mergeToHard(job.getIoSortFactor(),0, task,
-					hlog, task.getTaskTracker().getHdd(),counters, outSpills);
+					hlog, task.getTaskTracker().getHdd(),counters, outSpills, jobinfo.getCombiner());
 			}else{
 				outputSplit=new Datum(outSpills.get(0));
 			}
