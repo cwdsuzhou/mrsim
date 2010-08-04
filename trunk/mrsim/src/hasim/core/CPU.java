@@ -65,6 +65,8 @@ public class CPU extends Sim_entity implements HLoggerInterface{
 	private void initStat(){
 		
 		stat.add_measure("usage", Sim_stat.STATE_BASED, 0);
+        stat.add_measure(Sim_stat.UTILISATION);
+
 		set_stat(stat);
 	}
 	public CPU(String name,JsonCpu jsnCpu, HMonitor monitor) throws Exception{
@@ -113,10 +115,13 @@ public class CPU extends Sim_entity implements HLoggerInterface{
 //		logger.debug("submit "+ msg+", time "+ Sim_system.clock());
 	}
 
-	
 	public void work(double size, int user,int returnTag, Object object){
+		work(size, user, returnTag, object,1.0);//default priority =1
+	}
+	
+	public void work(double size, int user,int returnTag, Object object, double priority){
 		double totalTime = size  / speed;
-		double deltaTime = DELTA / speed;
+		double deltaTime = DELTA * priority/ speed ;
 
 		if(totalTime==0){
 			sim_schedule(user, 0.0, returnTag,object);
@@ -135,7 +140,7 @@ public class CPU extends Sim_entity implements HLoggerInterface{
 	public void body() {
 
 
-		HashSet<Datum> runningJoblets=new HashSet<Datum>(cores);
+//		HashSet<Datum> runningJoblets=new HashSet<Datum>(cores);
 		int tcounter=0;
 
 		while (Sim_system.running()) {
@@ -157,7 +162,7 @@ public class CPU extends Sim_entity implements HLoggerInterface{
 				}
 //			monitor.log(get_name()+"-cores", Sim_system.clock(), ""+runningJoblets.size(), false);
 //			monitor.log(get_name()+"-jobs", Sim_system.clock(), ""+jobs.size(), false);
-//			stat.update("usage", runningJoblets.size(), Sim_system.clock());
+			stat.update("usage", msgs.size(), Sim_system.clock());
 
 				if( tag == HTAG.engine_add.id()){
 					LocalMsg msg=(LocalMsg)ev.get_data();

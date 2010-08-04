@@ -341,7 +341,7 @@ public class HMerger {
 		
 		double totalSize = size * spills / 2;
 
-		double read = HMerger.computeBytesInMerges(10, 0, list) / 2;
+		double read = HMerger.computeBytesInMerges(10, 0, list) / 2.0;
 		logger.info("read byte "+ read);
 		double write = totalSize + read;
 
@@ -364,7 +364,7 @@ public class HMerger {
 		
 		
 		logger.info("---------------------------------------------------");
-		HMergeQueue queue=new HMergeQueue(queueList);
+//		HMergeQueue queue=new HMergeQueue(queueList);
 		//queue.merge(10, 2, 0, 0, null);
 	}
 }

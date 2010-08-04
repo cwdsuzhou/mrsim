@@ -92,6 +92,7 @@ public class GUISimulator extends javax.swing.JFrame {
 	private JMenuItem mnuOpenFile;
 	private JMenu mnuStat;
 	private JButton btnBulkTests;
+	private JMenuItem mnuPreviousGraph;
 	private JButton btnResubmitJob;
 	private AbstractAction actionReferesh;
 	private JButton btnReferesh;
@@ -119,7 +120,7 @@ public class GUISimulator extends javax.swing.JFrame {
 	private JTextArea txt;
 
 	HSimulator sim;
-	private String lastOpenJob="/home/hadoop/ms/jobs";
+	private String lastOpenJob="data/json/jobs";
 	//RF.firstFileInDir("data/json/job");
 
 	public GUISimulator() {
@@ -356,7 +357,8 @@ public class GUISimulator extends javax.swing.JFrame {
 					{
 						mnuGraphs = new JMenuItem();
 						mnuStat.add(mnuGraphs);
-						mnuGraphs.setText("Graphs");
+						mnuStat.add(getMnuPreviousGraph());
+						mnuGraphs.setText("Current Graphs");
 						mnuGraphs.addActionListener(new ActionListener() {
 							public void actionPerformed(ActionEvent evt) {
 								mnuGraphsActionPerformed(evt);
@@ -542,5 +544,51 @@ public class GUISimulator extends javax.swing.JFrame {
 		}
 		return btnBulkTests;
 	}
+	
+	private JMenuItem getMnuPreviousGraph() {
+		if(mnuPreviousGraph == null) {
+			mnuPreviousGraph = new JMenuItem();
+			mnuPreviousGraph.setText("Graphs");
+			mnuPreviousGraph.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent evt) {
+					mnuPreviousGraphActionPerformed(evt);
+				}
+			});
+		}
+		return mnuPreviousGraph;
+	}
+	
+	private void mnuPreviousGraphActionPerformed(ActionEvent evt) {
+		
+		String initDir= sim.resultDir==null ? "results": sim.resultDir;
+//		System.out.println("initDir ="+ initDir);
+		JFileChooser chooser=new JFileChooser(initDir);
+		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		
+		chooser.addChoosableFileFilter(new GraphFilter());
 
+				int ack=chooser.showOpenDialog(this);
+				if(ack != JFileChooser.APPROVE_OPTION)return;
+				try {
+					String gfile=chooser.getSelectedFile().getAbsolutePath();
+					logger.info(gfile);
+					SJGV.callMain(gfile);	
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+	
+	}
+
+}
+
+
+class GraphFilter extends javax.swing.filechooser.FileFilter {
+    public boolean accept(File file) {
+        String filename = file.getName();
+        return filename.toLowerCase().endsWith(".sjg") || file.isDirectory();
+    }
+    public String getDescription() {
+        return "*.sjg";
+    }
 }

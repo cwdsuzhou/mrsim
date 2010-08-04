@@ -16,6 +16,8 @@ import javax.sql.rowset.Predicate;
 
 import org.apache.log4j.Logger;
 
+import addition2.TestRandom;
+
 import dfs.Pair;
 
 import eduni.simjava.Sim_entity;
@@ -35,6 +37,7 @@ public class Datum implements Comparable<Object>{
 	private static final Logger logger = Logger.getLogger(Datum.class);
 
 
+	
 	//HTAG.values().length
 	private static AtomicInteger totalId=new AtomicInteger();
 	
@@ -73,7 +76,9 @@ public class Datum implements Comparable<Object>{
 	private Object data;
 	public int times=0;
 	public double speed=0;
-	
+
+
+	public double orgRecords;
 	boolean inMemory=false;
 	
 	public boolean isInMemory() {
@@ -109,6 +114,8 @@ public class Datum implements Comparable<Object>{
 	
 	public Datum(Datum d){
 		this(d.getName(), d.size, d.records, d.getLocation());
+		this.inMemory =d.inMemory;
+		this.orgRecords = d.orgRecords;
 	}
 
 	public Datum(double size, double records){
@@ -138,6 +145,8 @@ public class Datum implements Comparable<Object>{
 		this.size=size;
 		this.records=records;
 		this.location=location;
+		
+		this.orgRecords =records;
 	}
 	public Datum(Datum mapOutputLoc, boolean inMemory) {
 		this(mapOutputLoc);
@@ -177,10 +186,11 @@ public class Datum implements Comparable<Object>{
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
+		return id;
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + (int) (id ^ (id >>> 32));
+//		return result;
 	}
 	
 	public int id(){

@@ -1,5 +1,7 @@
 package addition;
 
+import hasim.json.JsonJob;
+
 import org.apache.log4j.Logger;
 
 import eduni.simjava.Sim_entity;
@@ -35,6 +37,10 @@ public class TestE extends Sim_entity{
 		}
 	}
 	public static void main(String[] args) {
+		
+		JsonJob job=JsonJob.read("data/json/job/job.json", JsonJob.class);
+		JsonJob.save("data/json/job/job_out.json", job);
+		if(true)return;
 		Sim_system.initialise();
 		
 		

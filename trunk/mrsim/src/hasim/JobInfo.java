@@ -106,7 +106,14 @@ public class JobInfo implements HLoggerInterface{
 
 	private Status status = Status.idle;
 	
+	private HCombiner combiner=null;
 	
+	public HCombiner getCombiner() {
+		return combiner;
+	}
+
+
+
 	public JobInfo(JsonJob job, Sim_entity user) {
 		this.user=user;
 		this.job = job;
@@ -118,6 +125,11 @@ public class JobInfo implements HLoggerInterface{
 		counters= new HCounter();
 		mCounter=new HCounter();
 		rCounter=new HCounter();
+		
+		if(job.isUseCombiner()){
+			HSimpleCombiner c=new HSimpleCombiner((int)job.getAlgorithm().getCombineGroups());
+			this.combiner= c;
+		}
 		
 		if (job.getData() != null) {
 			

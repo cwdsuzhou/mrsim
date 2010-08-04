@@ -115,21 +115,20 @@ public class InMemFSMergeThread extends Sim_entity {
 		//		int noInMemorySegments = inMemorySegments.size();
 
 
-		HMergeQueue mrgQueue=new HMergeQueue(inMemorySegments);
+//		HMergeQueue mrgQueue=new HMergeQueue(inMemorySegments);
 
 		//		Datum outmrg= mrgQueue.mergeMapper(copier.ioSortFactor, inMemorySegments.size(),
 		//				this, tLog, copier.getTask().getTaskTracker().getHdd(), copier.getCounters());
 
 		Datum outmrg=HMergeQueue.mergeToHard(copier.ioSortFactor,inMemorySegments.size(), 
-				this, tLog, copier.getTask().getTaskTracker().getHdd(), copier.getCounters(), inMemorySegments);
+				this, tLog, copier.getTask().getTaskTracker().getHdd(), copier.getCounters(), 
+				inMemorySegments,null);// copier.getJobinfo().getCombiner()
 
 		//TODO update spilled records
 
 		//        hdd.write(outmrg)
 
-		if (copier.combinerRunner == null) {
-			//conbine
-		}
+		
 
 		tLog.info(copier + 
 				" Merge of the " + inMemorySegments.size() +

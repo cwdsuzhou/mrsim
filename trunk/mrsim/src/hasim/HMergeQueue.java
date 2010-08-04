@@ -364,8 +364,8 @@ extends HPriorityQueue implements HIterator {
 		} while(true);
 
 	}
-	public Datum mergeMapper(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter){
+	public Datum merge(int factor,int inMem,Sim_entity entity,
+			HLogger mlog, HDD hdd, HCounter counter, HCombiner combiner){
 		
 		int localInMem=0;
 		for (Datum seg : segments) {
@@ -374,14 +374,6 @@ extends HPriorityQueue implements HIterator {
 		}
 		assert localInMem==inMem;
 
-		//    	HStory story=task.getStory();
-		//    	HLogger mlog=story.getHlog();
-		//    	HDD hdd=task.getTaskTracker().getHdd();
-		//    	assert story != null;
-
-		//    
-		//    	double readCounter=0, writeCounter=0;
-		//logger.info("Merging " + segments.size() + " sorted segments");
 		mlog.info("Merging " + segments.size() + " sorted segments. inMem="+inMem);
 
 		//create the MergeStreams from the sorted map created in the constructor
@@ -478,38 +470,48 @@ extends HPriorityQueue implements HIterator {
 				double approxInMemSize = 0;
 				double approxInMemRecord = 0;
 
-
+				double approxOrgRecord = 0;
+				
+				
 				for (Datum s : segmentsToMerge) {
-					approxOutputSize += s.size * (1+ CHKSUM_AS_FRACTION );
-					approxOutputRecord+= s.records;
+					approxOutputSize += s.size * (1 + CHKSUM_AS_FRACTION);
+					approxOutputRecord += s.records;
 
-					if(s.isInMemory()){
-						approxInMemRecord+=s.records;
-						approxInMemSize+=s.size;
+					approxOrgRecord += s.orgRecords;
+					if (s.isInMemory()) {
+						approxInMemRecord += s.records;
+						approxInMemSize += s.size;
 					}
 
 				}
 				Datum mrgSegmet = new Datum("m_" + segments.size(),
 						approxOutputSize, approxOutputRecord);
+				mrgSegmet.orgRecords = approxOrgRecord;// do not forget
+
+				
+				if( combiner != null){
+					mlog.info("last combine pass combine input "+mrgSegmet.records );
+
+					counter.inc(CTag.COMBINE_INPUT_RECORDS, mrgSegmet.records);
+					mrgSegmet = combiner.combine(mrgSegmet);
+					counter.inc(CTag.COMBINE_OUTPUT_RECORDS, mrgSegmet.records);
+
+					mlog.info("last combine pass combine output "+mrgSegmet.records );
+
+				}
 
 				mrgSegmet.setInMemory(true);
 				//mlog.info("approx size "+ approxOutputSize);
 				
 				double sizeToRead=approxOutputSize-approxInMemSize;
+				
+				//read
 				if(sizeToRead>0){
-
 					hdd.read(sizeToRead,entity, HTAG.merge_read.id(), mrgSegmet);
-//					hdd.write(mrgSegmet.size,entity.get_id(), HTAG.merg_write.id(),mrgSegmet);
-
-//					Datum.collect(entity, HTAG.merge_read.id(),HTAG.merg_write.id());
 					Datum.collectOne(entity, HTAG.merge_read.id());
-
 					counter.inc(CTag.FILE_BYTES_READ, sizeToRead);
-//					counter.inc(CTag.FILE_BYTES_WRITTEN, mrgSegmet.size);
-//					counter.inc(CTag.SPILLED_RECORDS, mrgSegmet.records);
 				}
 
-				//            mlog.info("total bytes proccessed "+ totalBytesProcessed);
 				mlog.info("total bytes proccessed "+ mrgSegmet.size);
 
 				this.clear();
@@ -522,6 +524,7 @@ extends HPriorityQueue implements HIterator {
 				return mrgSegmet;
 			} else {
 
+				//intermediate merge
 				mlog.info("Merging " + segmentsToMerge.size() + 
 						" intermediate segments out of a total of " + 
 						(segments.size()+segmentsToMerge.size()));
@@ -532,11 +535,16 @@ extends HPriorityQueue implements HIterator {
 
 				double approxInMemSize = 0;
 				double approxInMemRecord = 0;
+				
+				double approxOrgRecord = 0;
+
 
 
 				for (Datum s : segmentsToMerge) {
 					approxOutputSize += s.size * (1+ CHKSUM_AS_FRACTION );
 					approxOutputRecord+= s.records;
+					
+					approxOrgRecord += s.orgRecords;
 
 					if(s.isInMemory()){
 						approxInMemRecord+=s.records;
@@ -546,16 +554,28 @@ extends HPriorityQueue implements HIterator {
 				}
 				Datum mrgSegmet = new Datum("m_" + segments.size(),
 						approxOutputSize, approxOutputRecord);
-					mrgSegmet.setInMemory(false);
-				//mlog.info("approx size "+ approxOutputSize);
+					mrgSegmet.orgRecords = approxOrgRecord;//do not forget
+				mrgSegmet.setInMemory(false);
 				
+				if( combiner != null){
+					mlog.info("intermadiate combine pass combine input "+mrgSegmet.records );
+
+					counter.inc(CTag.COMBINE_INPUT_RECORDS, mrgSegmet.records);
+					mrgSegmet = combiner.combine(mrgSegmet);
+					counter.inc(CTag.COMBINE_OUTPUT_RECORDS, mrgSegmet.records);
+
+					mlog.info("intermadiate combine pass combine out "+mrgSegmet.records );
+
+				}
+				//mlog.info("approx size "+ approxOutputSize);
+
 				double sizeToRead=approxOutputSize-approxInMemSize;
 				assert sizeToRead>0;
 
 				{
 						
 						hdd.read( sizeToRead,entity , HTAG.merge_read.id(), mrgSegmet);
-						hdd.write(approxOutputSize, entity, HTAG.merg_write.id(),mrgSegmet);
+						hdd.write(mrgSegmet.size, entity, HTAG.merg_write.id(),mrgSegmet);//modified
 						Datum.collect(entity, HTAG.merge_read.id(),HTAG.merg_write.id());
 						
 						counter.inc(CTag.SPILLED_RECORDS, mrgSegmet.records);
@@ -584,36 +604,38 @@ extends HPriorityQueue implements HIterator {
 	}
 
 	public static Datum mergeToMem(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments){
+			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments, HCombiner combiner){
 		HMergeQueue queu=new HMergeQueue(segments);
-		Datum outmrg=queu.mergeMapper(factor, inMem, entity, mlog, hdd, counter);
+		Datum outmrg=queu.merge(factor, inMem, entity, mlog, hdd, counter, combiner);
 		
 		outmrg.setInMemory(true);
 		return outmrg;
 	}
 
-	public static Datum mergeToHardCombine(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments){
-		HMergeQueue queu=new HMergeQueue(segments);
-		Datum outmrg=queu.mergeMapper(factor, inMem, entity, mlog, hdd, counter);
-			
-		hdd.write(outmrg.size, entity, HTAG.merg_write.id(), outmrg);
-		
-		Datum outmrgReturn=(Datum) Datum.collectOne(entity, HTAG.merg_write.id());
-		
-		assert outmrg==outmrgReturn;
-		
-		counter.inc(CTag.SPILLED_RECORDS, outmrg.records);
-		counter.inc(CTag.FILE_BYTES_WRITTEN, outmrg.size);
-		
-		outmrg.setInMemory(false);
-		return outmrg;
-	}
-	
+//	public static Datum mergeToHardCombine(int factor,int inMem,Sim_entity entity, HLogger mlog,
+//			HDD hdd, HCounter counter, Collection<Datum> segments, HCombiner combiner){
+//		
+//		HMergeQueue queu=new HMergeQueue(segments);
+//		Datum outmrg=queu.merge(factor, inMem, entity, mlog, hdd, counter, combiner);
+//			
+//		hdd.write(outmrg.size, entity, HTAG.merg_write.id(), outmrg);
+//		
+//		Datum outmrgReturn=(Datum) Datum.collectOne(entity, HTAG.merg_write.id());
+//		
+//		assert outmrg==outmrgReturn;
+//		
+//		counter.inc(CTag.SPILLED_RECORDS, outmrg.records);
+//		counter.inc(CTag.FILE_BYTES_WRITTEN, outmrg.size);
+//		
+//		outmrg.setInMemory(false);
+//		return outmrg;
+//	}
+//	
 	public static Datum mergeToHard(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments){
+			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments, HCombiner combiner){
+		
 		HMergeQueue queu=new HMergeQueue(segments);
-		Datum outmrg=queu.mergeMapper(factor, inMem, entity, mlog, hdd, counter);
+		Datum outmrg=queu.merge(factor, inMem, entity, mlog, hdd, counter, combiner);
 			
 		
 		hdd.write(outmrg.size, entity, HTAG.merg_write.id(), outmrg);
@@ -789,228 +811,6 @@ extends HPriorityQueue implements HIterator {
 		return mergeProgress;
 	}
 
-
-	public Datum mergeMapperCombine(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter){
-		
-		int localInMem=0;
-		for (Datum seg : segments) {
-			if (seg.isInMemory())
-				localInMem++;
-		}
-		assert localInMem==inMem;
-
-		//    	HStory story=task.getStory();
-		//    	HLogger mlog=story.getHlog();
-		//    	HDD hdd=task.getTaskTracker().getHdd();
-		//    	assert story != null;
-
-		//    
-		//    	double readCounter=0, writeCounter=0;
-		//logger.info("Merging " + segments.size() + " sorted segments");
-		mlog.info("Merging " + segments.size() + " sorted segments. inMem="+inMem);
-
-		//create the MergeStreams from the sorted map created in the constructor
-		//and dump the final output to a file
-		int numSegments = segments.size();
-		int origFactor = factor;
-		int passNo = 1;
-		do {
-			//get the factor for this pass of merge. We assume in-memory segments
-			//are the first entries in the segment list and that the pass factor
-			//doesn't apply to them
-			factor = getPassFactor(factor, passNo, numSegments - inMem);
-			if (1 == passNo) {
-				factor += inMem;
-				//TODO check inMem later
-				inMem=0;
-			}
-			List<Datum> segmentsToMerge =new ArrayList<Datum>();
-			int segmentsConsidered = 0;
-			int numSegmentsToConsider = factor;
-			long startBytes = 0; // starting bytes of segments of this merge
-			while (true) {
-				//extract the smallest 'factor' number of segments  
-				//Call cleanup on the empty segments (no key/value data)
-				List<Datum> mStream = 
-					getSegmentDescriptors(numSegmentsToConsider, segments);
-
-				for ( int i=0; i< mStream.size(); i++) {
-					Datum segment = mStream.get(i);
-					// Initialize the segment at the last possible moment;
-					// this helps in ensuring we don't use buffers until we need them
-					// segment.init(readsCounter);
-					boolean hasNext = i < mStream.size();
-					startBytes += segment.size;
-
-					if (hasNext) {
-						segmentsToMerge.add(segment);
-						segmentsConsidered++;
-					}
-					else {
-						numSegments--; //we ignore this segment for the merge
-					}
-				}
-				//if we have the desired number of segments
-				//or looked at all available segments, we break
-				if (segmentsConsidered == factor || 
-						segments.size() == 0) {
-					break;
-				}
-
-				numSegmentsToConsider = factor - segmentsConsidered;
-			}
-
-			//feed the streams to the priority queue
-			clear();
-			for (Datum segment : segmentsToMerge) {
-				put(segment);
-				//            readCounter += segment.size;
-
-			}
-
-			//if we have lesser number of segments remaining, then just return the
-			//iterator, else do another single level merge
-			if (numSegments <= factor) {
-				// Reset totalBytesProcessed to track the progress of the final merge.
-				// This is considered the progress of the reducePhase, the 3rd phase
-				// of reduce task. Currently totalBytesProcessed is not used in sort
-				// phase of reduce task(i.e. when intermediate merges happen).
-				totalBytesProcessed = startBytes;
-				//calculate the length of the remaining segments. Required for 
-				//calculating the merge progress
-				double totalBytes = 0;
-
-				for (int i = 0; i < segmentsToMerge.size(); i++) {
-					totalBytes += segmentsToMerge.get(i).size;
-				}
-
-
-				if (totalBytes != 0) //being paranoid
-				progPerByte = 1.0f / (float)totalBytes;
-
-				if (totalBytes != 0)
-					mergeProgress.set(totalBytesProcessed * progPerByte);
-				else
-					mergeProgress.set(1.0f); // Last pass and no segments left - we're done
-
-				mlog.info("Down to the last merge-pass, with " + numSegments + 
-						" segments left of total size: " + totalBytes + " bytes");
-
-				//            
-				double approxOutputSize = 0;
-				double approxOutputRecord =0;
-
-				double approxInMemSize = 0;
-				double approxInMemRecord = 0;
-
-
-				for (Datum s : segmentsToMerge) {
-					approxOutputSize += s.size * (1+ CHKSUM_AS_FRACTION );
-					approxOutputRecord+= s.records;
-
-					if(s.isInMemory()){
-						approxInMemRecord+=s.records;
-						approxInMemSize+=s.size;
-					}
-
-				}
-				Datum mrgSegmet = new Datum("m_" + segments.size(),
-						approxOutputSize, approxOutputRecord);
-
-				mrgSegmet.setInMemory(true);
-				//mlog.info("approx size "+ approxOutputSize);
-				
-				double sizeToRead=approxOutputSize-approxInMemSize;
-				if(sizeToRead>0){
-
-					hdd.read(sizeToRead,entity, HTAG.merge_read.id(), mrgSegmet);
-//					hdd.write(mrgSegmet.size,entity.get_id(), HTAG.merg_write.id(),mrgSegmet);
-
-//					Datum.collect(entity, HTAG.merge_read.id(),HTAG.merg_write.id());
-					Datum.collectOne(entity, HTAG.merge_read.id());
-
-					counter.inc(CTag.FILE_BYTES_READ, sizeToRead);
-//					counter.inc(CTag.FILE_BYTES_WRITTEN, mrgSegmet.size);
-//					counter.inc(CTag.SPILLED_RECORDS, mrgSegmet.records);
-				}
-
-				//            mlog.info("total bytes proccessed "+ totalBytesProcessed);
-				mlog.info("total bytes proccessed "+ mrgSegmet.size);
-
-				this.clear();
-
-				////added by suhel may need to delete later  
-				segments.add(mrgSegmet);
-				numSegments = segments.size();
-				Collections.sort(segments, segmentComparator);
-				//end added by suhel
-				return mrgSegmet;
-			} else {
-
-				mlog.info("Merging " + segmentsToMerge.size() + 
-						" intermediate segments out of a total of " + 
-						(segments.size()+segmentsToMerge.size()));
-				//we want to spread the creation of temp files on multiple disks if 
-				//available under the space constraints
-				double approxOutputSize = 0;
-				double approxOutputRecord =0;
-
-				double approxInMemSize = 0;
-				double approxInMemRecord = 0;
-
-
-				for (Datum s : segmentsToMerge) {
-					approxOutputSize += s.size * (1+ CHKSUM_AS_FRACTION );
-					approxOutputRecord+= s.records;
-
-					if(s.isInMemory()){
-						approxInMemRecord+=s.records;
-						approxInMemSize+=s.size;
-					}
-
-				}
-				Datum mrgSegmet = new Datum("m_" + segments.size(),
-						approxOutputSize, approxOutputRecord);
-					mrgSegmet.setInMemory(false);
-				//mlog.info("approx size "+ approxOutputSize);
-				
-				double sizeToRead=approxOutputSize-approxInMemSize;
-				assert sizeToRead>0;
-
-				{
-
-					hdd.read( sizeToRead,entity , HTAG.merge_read.id(), mrgSegmet);
-					hdd.write(approxOutputSize, entity, HTAG.merg_write.id(),mrgSegmet);
-
-
-					Datum.collect(entity, HTAG.merge_read.id(),HTAG.merg_write.id());
-
-
-					counter.inc(CTag.SPILLED_RECORDS, mrgSegmet.records);
-					counter.inc(CTag.FILE_BYTES_WRITTEN, mrgSegmet.size);
-					
-					counter.inc(CTag.FILE_BYTES_READ, sizeToRead);
-
-				}
-				//TODO try to write files here writeFile(this, writer, reporter, conf);
-				//we finished one single level merge; now clean up the priority 
-				//queue
-				this.clear();
-
-
-				segments.add(mrgSegmet);
-				numSegments = segments.size();
-				Collections.sort(segments, segmentComparator);
-
-				passNo++;
-			}
-			//we are worried about only the first pass merge factor. So reset the 
-			//factor to what it originally was
-			factor = origFactor;
-		} while(true);
-
-	}
 
 }
 

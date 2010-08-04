@@ -17,6 +17,7 @@ public class LocalMsg{
 	private int times=0;
 	private int tag;
 	
+	
 	public int getTag() {
 		return tag;
 	}

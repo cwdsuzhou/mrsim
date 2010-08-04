@@ -89,6 +89,8 @@ public class HDD extends Sim_entity implements HLoggerInterface{
 	private void initStat(){
 
 		stat.add_measure("usage", Sim_stat.STATE_BASED, 0);
+        stat.add_measure(Sim_stat.UTILISATION);
+
 		set_stat(stat);
 	}
 
@@ -211,7 +213,6 @@ public class HDD extends Sim_entity implements HLoggerInterface{
 				LocalMsg msg=msgs.next();
 
 				sim_process(msg.decTimesAndGet()*percent);
-
 				//logger.info("hasNext: "+ msg.hasNext());
 				if(! msg.hasNext()){
 

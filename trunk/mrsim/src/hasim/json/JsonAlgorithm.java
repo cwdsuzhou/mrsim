@@ -18,7 +18,7 @@ public class JsonAlgorithm {
 	private double combineSize = 1.0;//could be combineGroups
 	private double combineRecords = 1.0;
 	
-	private double combineGroups=1.0;
+	private double combineGroups=Double.MAX_VALUE;
 	private double combineOutAvRecordSize=1.0;
 	private double combineOutAvRecordSize_add=0.0;
 	

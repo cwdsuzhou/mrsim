@@ -6,17 +6,17 @@
 
 Version: SimJava 2.0
 
-Simulation date:         06 May 2010
-Simulation start time:   19:32:06 BST
-Simulation end time:     19:32:08 BST
+Simulation date:         29 July 2010
+Simulation start time:   23:57:36 BST
+Simulation end time:     01:18:14 BST
 
 ############################################################
 #            Overall simulation run information            #
 ############################################################
 
-Total simulated time:    73.65382214318441
+Total simulated time:    210990.0
 Total transient time:    0.0
-Total steady state time: 73.65382214318441
+Total steady state time: 210990.0
 Transient condition:     None
 Termination condition:   None
 Output analysis method:  None
@@ -25,9 +25,383 @@ Output analysis method:  None
 #               Simulation run measurements                #
 ############################################################
 
---------------------------- hdd ----------------------------
+-------------------------- cpu_m1 --------------------------
 
 - usage
+
+Sample mean:          4.515327556009481E-6
+Sample variance:      1.4032949610588401E-5
+Sample std deviation: 0.0037460578760329373
+Maximum:              5.0
+Minimum:              0.0
+
+- Utilisation
+
+Sample mean:          0.0
+
+-------------------------- hdd_m1 --------------------------
+
+- usage
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+- Utilisation
+
+Sample mean:          1.1263071196267588E-4
+
+------------------------- m1-map-0 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-1 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-2 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-3 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-4 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-5 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-6 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-7 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-8 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m1-map-9 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+-------------------------- cpu_m2 --------------------------
+
+- usage
+
+Sample mean:          4.515327556009481E-6
+Sample variance:      1.4032949610588401E-5
+Sample std deviation: 0.0037460578760329373
+Maximum:              5.0
+Minimum:              0.0
+
+- Utilisation
+
+Sample mean:          0.0
+
+-------------------------- hdd_m2 --------------------------
+
+- usage
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+- Utilisation
+
+Sample mean:          1.1213223580547546E-4
+
+------------------------- m2-map-0 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-1 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-2 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-3 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-4 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-5 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-6 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-7 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-8 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m2-map-9 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+-------------------------- cpu_m3 --------------------------
+
+- usage
+
+Sample mean:          4.515327556009481E-6
+Sample variance:      1.4032949610588401E-5
+Sample std deviation: 0.0037460578760329373
+Maximum:              5.0
+Minimum:              0.0
+
+- Utilisation
+
+Sample mean:          0.0
+
+-------------------------- hdd_m3 --------------------------
+
+- usage
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+- Utilisation
+
+Sample mean:          1.1213223580547546E-4
+
+------------------------- m3-map-0 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-1 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-2 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-3 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-4 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-5 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-6 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-7 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-8 -------------------------
+
+- arrive
+
+Sample mean:          0.0
+Sample variance:      0.0
+Sample std deviation: 0.0
+Maximum:              0.0
+Minimum:              0.0
+
+------------------------- m3-map-9 -------------------------
+
+- arrive
 
 Sample mean:          0.0
 Sample variance:      0.0

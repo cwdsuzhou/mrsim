@@ -177,10 +177,7 @@ public class ReduceCopier extends HReducerStory {
 	final Set<Datum> copiedMapOutputs = Collections
 	.synchronizedSet(new TreeSet<Datum>());
 
-	/**
-	 * Combiner runner, if a combiner is needed
-	 */
-	CombinerRunner combinerRunner;
+	
 
 	/**
 	 * Resettable collector used for combine.
@@ -219,8 +216,7 @@ public class ReduceCopier extends HReducerStory {
 		HCounterValue combineInputCounter = counters
 		.hValue(CTag.COMBINE_INPUT_RECORDS);
 
-		if (job.isUseCombiner())
-			this.combinerRunner = new CombinerRunner();
+		
 
 		this.ioSortFactor = job.getIoSortFactor();
 		// the exponential backoff formula
@@ -487,8 +483,10 @@ public class ReduceCopier extends HReducerStory {
 	                   inMemToDiskBytes + " bytes to disk to satisfy " +
 	                   "reduce memory limit");
 			
-			Datum outd=HMergeQueue.mergeToHard(ioSortFactor,mapOutputsFilesInMemory.size(),
-					task, hlog, task.getTaskTracker().getHdd(), counters, mapOutputsFilesInMemory);
+			Datum outd = HMergeQueue.mergeToHard(ioSortFactor,
+					mapOutputsFilesInMemory.size(), task, hlog, task
+							.getTaskTracker().getHdd(), counters,
+					mapOutputsFilesInMemory, null);// jobinfo.getCombiner()
 			mapOutputsFilesInMemory.clear();
 			outd.setInMemory(false);
 			addFileOnDisk(outd);
@@ -508,7 +506,7 @@ public class ReduceCopier extends HReducerStory {
 		Datum outToReduce=HMergeQueue.mergeToMem(ioSortFactor,
 				numMemDiskSegments(mapOutputFilesOnDisk),
 				task, hlog, task.getTaskTracker().getHdd(),
-				counters, mapOutputFilesOnDisk);
+				counters, mapOutputFilesOnDisk, null);//jobinfo.getCombiner()
 		
 		
 		/////
