@@ -41,30 +41,32 @@ public class HSimulator extends Thread {
 	 */
 	private static final Logger logger = Logger.getLogger(HSimulator.class);
 
-//	public static Map<String, HMonitor> monitors=new LinkedHashMap<String, HMonitor>();
+	//	public static Map<String, HMonitor> monitors=new LinkedHashMap<String, HMonitor>();
 
 	public HSimulator() {
 	}
-	
+
 	HJobTracker jobTracker;
-//	HTopology topology;
-	
+	//	HTopology topology;
+
 	public static boolean running(){
 		return Sim_system.running();
 	}
-	
-	
+
+
 	public static void initSimulator(boolean flowType){
+		String initRDir="results";
+		initRDir ="/home/hadoop/django-projects/count/mrsim/results";
 		
 		Sim_system.initialise();
 
 		HTopology.initGridSim(flowType);
-		
-        resultDir=RF.newResultDir("results");
-        logger.info("creat new Result dir "+ resultDir);
-        
+
+		resultDir=RF.newResultDir("results");
+		logger.info("creat new Result dir "+ resultDir);
+
 	}
-	
+
 	public void submitJob(String jobfile, JobInfo jobInfo){
 		if(isPaused()){
 			resumeSimulation();
@@ -92,67 +94,67 @@ public class HSimulator extends Thread {
 		}
 	}
 	public void stopSimulator(){
-		
+
 		if(isPaused()){
 			resumeSimulation();
 		}
 		if(jobTracker != null){
 			jobTracker.stopSimulation();
-//			jobTracker.saveHlog();
+			//			jobTracker.saveHlog();
 		}
-//		if(topology != null){
-//			topology.stopSimulation();
-//			topology.saveHLog();
-//		}
-//		
-//		jobTracker=null;
-//		topology=null;
-		
+		//		if(topology != null){
+		//			topology.stopSimulation();
+		//			topology.saveHLog();
+		//		}
+		//		
+		//		jobTracker=null;
+		//		topology=null;
+
 	}
-	
+
 	public static String resultDir;
-	
-	public void startSimulator(){
-		
-		
-		logger.info("Starting simulator version");
-        try {
-          
-  		  Sim_system.set_trace_detail(false, false, false);
-          Sim_system.set_report_detail(true, true);
-         // Sim_system.set_termination_condition(Sim_system.TIME_ELAPSED, 2000, false);
-         
-//          Sim_system.set_termination_condition(Sim_system.EVENTS_COMPLETED,jobTracker.get_name(),
-//          		HTAG.END_OF_SIMULATION,1,false);
-          
-          Sim_system.set_trace_level(200);
-          logger.info("trace level"+Sim_system.get_trace_level());
-          
-          String graphFile=RF.get(resultDir, RF.graph);
-          logger.info("graph file: "+ graphFile);
-          Sim_system.generate_graphs(graphFile);
 
-          HMonitor.setDebugMode(DebugMode.NONE);
-          
-          logger.info("going to call Sim_system.run()");
-          
-          Sim_system.run();
-            
-          logger.info("simulator stopped");
-        }
-        catch (Exception e)
-        {
-        	e.printStackTrace();
-            throw new NullPointerException("start hsim() :" +
-                    " Error - you haven't initialized hsim.");
-        }
-        
-        logger.info("end simulation");
-        
+	public void startSimulator(){
+
+
+		logger.info("Starting simulator version");
+		try {
+
+			Sim_system.set_trace_detail(false, false, false);
+			Sim_system.set_report_detail(true, true);
+			// Sim_system.set_termination_condition(Sim_system.TIME_ELAPSED, 2000, false);
+
+			//          Sim_system.set_termination_condition(Sim_system.EVENTS_COMPLETED,jobTracker.get_name(),
+			//          		HTAG.END_OF_SIMULATION,1,false);
+
+			Sim_system.set_trace_level(200);
+			logger.info("trace level"+Sim_system.get_trace_level());
+
+			String graphFile=RF.get(resultDir, RF.graph);
+			logger.info("graph file: "+ graphFile);
+			Sim_system.generate_graphs(graphFile);
+
+			HMonitor.setDebugMode(DebugMode.NONE);
+
+			logger.info("going to call Sim_system.run()");
+
+			Sim_system.run();
+
+			logger.info("simulator stopped");
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			throw new NullPointerException("start hsim() :" +
+			" Error - you haven't initialized hsim.");
+		}
+
+		logger.info("end simulation");
+
 	}
 
-	
-	
+
+
 
 	public static void main(String[] args) {
 		HSimulator sim=new HSimulator();
@@ -160,60 +162,60 @@ public class HSimulator extends Thread {
 	}
 
 
-	
-	
 
-	
-	
+
+
+
+
 	@Override
 	public void run() {
 		startSimulator();
 		logger.info("get out of thread");
 	}
-	
+
 	public  void main() {
 		System.out.println("start");
 		try {
-			
-//			if(simoTree != null){
-//				simoTree.addRack("rack 01", taskTrackers);
-//				simoTree.addTopology(getTopology());
-//				}
+
+			//			if(simoTree != null){
+			//				simoTree.addRack("rack 01", taskTrackers);
+			//				simoTree.addTopology(getTopology());
+			//				}
 			HSimulator.initSimulator(true);
-			
+
 			jobTracker= new HJobTracker("jobTracker",
-				"data/json/rack_working.json", null);
-			
-			
-			
-			
-			
+					"data/json/rack_working.json", null);
+
+
+
+
+
 			logger.info("jobTracker.init()");
 			jobTracker.createEntities(resultDir);
 
-			
+
 			logger.info("Start hsim");
-			
-			
+
+
 			//test
-	         //Sim_system.generate_graphs(true);
+			//Sim_system.generate_graphs(true);
 
 			//logger.info(topology.getNetends().keySet());
 			startSimulator();
-			
-			
 
-			
+
+
+
 			logger.info("simulation ended");
-			
-			
+
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	
+
 	private static AtomicBoolean paused=new AtomicBoolean(false);
 	public static boolean isPaused() {
 		return paused.get();
@@ -232,7 +234,7 @@ public class HSimulator extends Thread {
 		sleep(300);
 		paused.set(false);
 	}
-	
+
 	public static void pauseResume() {
 		if(isPaused()){
 			resumeSimulation();
@@ -242,7 +244,7 @@ public class HSimulator extends Thread {
 			logger.info("Sim_system.paused");
 		}
 	}
-	
 
-	
+
+
 }

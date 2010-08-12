@@ -94,6 +94,10 @@ public abstract class HStory implements HLoggerInterface{
 		return task;
 	}
 
+	/**
+	 * @param spill
+	 * @return
+	 */
 	public Datum map(Datum spill){
 		
 		counters.inc(CTag.HDFS_BYTES_READ, spill.size);
@@ -139,11 +143,17 @@ public abstract class HStory implements HLoggerInterface{
 			//sort and combine before spilling
 			HCombiner combiner = jobinfo.getCombiner();
 			if(combiner != null){
+				assert job.isUseCombiner()==true;
 				hlog.info("spill combine pass combine input "+outSpill.records );
 
 				counters.inc(CTag.COMBINE_INPUT_RECORDS, outSpill.records);
 				outSpillCombined = combiner.combine(outSpill);
-				//cpu combine cost
+				
+				/*cpu combine cost*/
+				cpu.work(job.getAlgorithm().getCombineCost()*outSpill.records,
+						task.get_id(), HTAG.combine_with_cpu.id, outSpillCombined);
+				Datum.collectOne(task, HTAG.combine_with_cpu.id);
+		
 				counters.inc(CTag.COMBINE_OUTPUT_RECORDS, outSpillCombined.records);
 				hlog.info("spill combine pass combine out "+outSpillCombined.records );
 

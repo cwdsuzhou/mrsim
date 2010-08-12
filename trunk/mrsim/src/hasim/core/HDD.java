@@ -66,14 +66,15 @@ public class HDD extends Sim_entity implements HLoggerInterface{
 	}
 	
 	static double adjustPercent(int currentWrites){
-		if(true)return 1.0;
+//		if(true)return 1.0;
 		double min=3, max=60, slop=100;
 		assert currentWrites >=0;
+		
 		if(currentWrites<min)
 			return 1.0;
-		if(currentWrites < max)
-			return 1-(currentWrites-min)/slop;
-		return 1- (max-min)/slop;
+		else if(currentWrites < max)
+			return 1.0-(currentWrites-min)/slop;
+		return 1.0- (max-min)/slop;
 	}
 
 	//	List<Disk> disks=new ArrayList<Disk>();

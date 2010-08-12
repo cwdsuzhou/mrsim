@@ -160,7 +160,7 @@ public enum HTAG {
 	START_LocalFSMerger_return,
 	START_InMemFSMergeThread,doInMemMerge_return, getMapOutputReturn, all_done, doInMemMerge,
 	ReduceCopierInit, add_pending_shuffle, shuffle, check_pending_shuffles, shuffle_return, all_shuffles_finished, 
-	all_shuffles_finished_return, NULL, jobinfo_complete, local_jobtest, replicate, releaseTask, check_doMerge
+	all_shuffles_finished_return, NULL, jobinfo_complete, local_jobtest, replicate, releaseTask, check_doMerge, combine_with_cpu
 	
 
 	;

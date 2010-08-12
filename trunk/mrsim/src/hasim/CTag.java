@@ -46,7 +46,8 @@ public enum CTag {
 	
 	test, FILE_BYTES_READ_TEST, FILE_BYTES_WRITTEN_TEST,
 	MAP_OUTPUT_BYTES, JOB_START_TIME,
-	JOB_STOP_TIME, JOB_TOTAL_TIME, DURATION, SHUFFLE, process_time
+	JOB_STOP_TIME, JOB_TOTAL_TIME, DURATION, SHUFFLE, process_time, 
+	avMappersTime, avReducersTime
 	
 ;
 	public static Comparator<CTag> ctagComp=new Comparator<CTag>() {

@@ -30,7 +30,7 @@ public class HUser extends Sim_entity implements HLoggerInterface{
 	
 	public void submitJobTest( JobTestInterface test){
 		logger.info("submit new jobt test "+ test);
-		sim_schedule(get_id(), 0.0, HTAG.local_jobtest.id(), test);
+		sim_schedule(get_id(), 1.0, HTAG.local_jobtest.id(), test);
 	}
 	
 	@Override
@@ -49,7 +49,7 @@ public class HUser extends Sim_entity implements HLoggerInterface{
 			if (tag == HTAG.END_OF_SIMULATION) {
 				logger.info("receive end of simulation");
 				logger.info(get_name()+" END_OF_SIMULATION "+ Sim_system.clock());
-
+				tracker.stopSimulation();
 				break;
 			}
 			
@@ -66,10 +66,9 @@ public class HUser extends Sim_entity implements HLoggerInterface{
 			
 		}
 		
-		assert false;
 	}
 	
-	public void stopEntity() {
+	public void stopSimulation() {
 		sim_schedule(get_id(), 0.0, HTAG.END_OF_SIMULATION);
 //		hlog.info("counters: "+ counters);
 //		hlog.save();

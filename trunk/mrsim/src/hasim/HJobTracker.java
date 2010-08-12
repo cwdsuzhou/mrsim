@@ -144,9 +144,13 @@ public class HJobTracker extends Sim_entity implements HLoggerInterface{
 			Sim_event ev = new Sim_event();
 			sim_get_next(ev);
 			int tag = ev.get_tag();
-
+			
+			
+			/*step using input console*/
+//			logger.info(Sim_system.clock()+ "\t"+ HTAG.toString(tag));
+//			try {System.in.read();} catch (IOException e) {e.printStackTrace();}
+		
 //			monitor.step(Sim_system.clock(), "event:" + HTAG.toString(tag));
-
 			if (tag == HTAG.END_OF_SIMULATION) {
 				monitor.txt(Sim_system.clock(), "END_OF_SIMULATION TAG");
 				hlog.info("END_OF_SIMULATION TAG", Sim_system.clock());
@@ -680,7 +684,7 @@ public class HJobTracker extends Sim_entity implements HLoggerInterface{
 //			machine.getNetend().stopEntity();
 		}
 
-		huser.stopEntity();
+		//huser.stopEntity(); user is to stop entity
 		
 		collector.stopEntity();
 
@@ -726,8 +730,11 @@ public class HJobTracker extends Sim_entity implements HLoggerInterface{
 
 //		sim_schedule(get_id(), 0.5, HTAG.null_tag.id(), jobinfo);
 
-		sim_schedule(get_id(), 0.5, HTAG.job_tracker_add_job.id(), jobinfo);
+		assert get_id()>0;
+		assert jobinfo != null;
+		sim_schedule(get_id(), 0.0, HTAG.job_tracker_add_job.id(), jobinfo);
 
+		logger.info("sumbint schedulled");
 		return jobinfo;
 	}
 
