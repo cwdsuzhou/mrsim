@@ -1,0 +1,48 @@
+{
+	"jobName":"{{jobName}}",
+	
+	"numberOfMappers":60,
+	"numberOfReducers":1,
+	
+	"replication":3,
+
+	"data":{ "name":"data_1", "size":{{ size }},
+		 "records":{{ records }}, "replica":["m1","m2"]},
+	
+
+	"inputSplits":[],
+		
+	"outputSplits":[],
+	
+	
+	"useCombiner":{{ useCombiner }},
+	
+	"useCompression":false,
+
+	
+	
+	"memoryLimit":{{memoryLimit}},
+
+	"algorithm":{
+		"mapCost":5000,
+		"mapRecords":50,
+		"mapOutAvRecordSize":12.0,
+		
+		"combineCost":3000,
+		"combineSize":1.0,
+		"combineRecords":1.0,
+
+		"combineGroups":100000,
+		"combineOutAvRecordSize":1.0,
+		"combineOutAvRecordSize_add":0.0,
+	
+		
+		"reduceCost":200.0,
+		"reduceRecords":1.85E-03,
+		"reduceOutAvRecordSize":9.89,
+		
+		"compressionCost":1.0,
+		"uncompressionCost":1.0,
+		"compressionSize":1.0
+}
+}
