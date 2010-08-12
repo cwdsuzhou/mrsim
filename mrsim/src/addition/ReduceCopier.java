@@ -485,7 +485,7 @@ public class ReduceCopier extends HReducerStory {
 			
 			Datum outd = HMergeQueue.mergeToHard(ioSortFactor,
 					mapOutputsFilesInMemory.size(), task, hlog, task
-							.getTaskTracker().getHdd(), counters,
+							.getTaskTracker() , counters,
 					mapOutputsFilesInMemory, null);// jobinfo.getCombiner()
 			mapOutputsFilesInMemory.clear();
 			outd.setInMemory(false);
@@ -505,7 +505,7 @@ public class ReduceCopier extends HReducerStory {
 		//merge memory and disk interleaved data to mem, for reducing
 		Datum outToReduce=HMergeQueue.mergeToMem(ioSortFactor,
 				numMemDiskSegments(mapOutputFilesOnDisk),
-				task, hlog, task.getTaskTracker().getHdd(),
+				task, hlog, task.getTaskTracker(),
 				counters, mapOutputFilesOnDisk, null);//jobinfo.getCombiner()
 		
 		

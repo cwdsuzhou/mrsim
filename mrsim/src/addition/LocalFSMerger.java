@@ -191,7 +191,7 @@ public class LocalFSMerger extends Sim_entity {
 //				copier.getTask().getTaskTracker().getHdd(), copier.getCounters());
 		
 		Datum outmrg=HMergeQueue.mergeToHard(copier.ioSortFactor,0, this, tLog,	
-				copier.getTask().getTaskTracker().getHdd(), 
+				copier.getTask().getTaskTracker() , 
 				copier.getCounters(),mapFiles, null );// copier.getJobinfo().getCombiner()
 		// TODO check final merge
 		// Merger.writeFile(iter, writer, reporter, conf);

@@ -127,7 +127,9 @@ public class JobInfo implements HLoggerInterface{
 		rCounter=new HCounter();
 		
 		if(job.isUseCombiner()){
-			HSimpleCombiner c=new HSimpleCombiner((int)job.getAlgorithm().getCombineGroups());
+			int groups=(int)job.getAlgorithm().getCombineGroups();
+			double cost = job.getAlgorithm().getCombineCost();
+			HSimpleCombiner c=new HSimpleCombiner(groups, cost);
 			this.combiner= c;
 		}
 		
@@ -255,22 +257,24 @@ public class JobInfo implements HLoggerInterface{
 		hlog.infoCounter("\nMap Counters:",mCounter);
 		hlog.infoCounter("\nReduce Counters:",rCounter);
 		
-		hlog.info("av mappers: \t"+ 
-				mCounter.get(CTag.DURATION)/job.getNumberOfMappers());
+		double avMappersTime= mCounter.get(CTag.DURATION)/job.getNumberOfMappers();
+		double avReducersTime= rCounter.get(CTag.DURATION)/job.getNumberOfReducers();
+		
+		counters.set(CTag.avMappersTime, avMappersTime);
+		counters.set(CTag.avReducersTime, avReducersTime);
+		
+		hlog.info("av mappers: \t"+ avMappersTime);
 		if(job.getNumberOfReducers()>0)
-			hlog.info("av reducers: \t"+ 
-				rCounter.get(CTag.DURATION)/job.getNumberOfReducers());
+			hlog.info("av reducers: \t"+ avReducersTime);
 		hlog.infoCounter("\nJob Counters:",counters);
 		
 		System.out.println("===========================================================================================================================");
 		System.out.println("job "+ logFile);
 		System.out.println("\nMap Counters:"+mCounter);
 		System.out.println("\nReduce Counters:"+rCounter);
-		System.out.println("av mappers: "+ 
-				mCounter.get(CTag.DURATION)/job.getNumberOfMappers());
+		System.out.println("av mappers: "+ avMappersTime);
 		if(job.getNumberOfReducers()>0)
-			System.out.println("av reducers: "+ 
-				rCounter.get(CTag.DURATION)/job.getNumberOfReducers());
+			System.out.println("av reducers: "+ avReducersTime);
 		System.out.println("\nJob Counters:"+counters);
 		
 		save();

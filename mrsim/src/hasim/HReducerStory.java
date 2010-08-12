@@ -352,7 +352,7 @@ public class HReducerStory extends HStory{
 			
 				if(mergeDisk.getSegments().size()>= sortFactor){
 					Datum outDatum=mergeDisk.merge(sortFactor, 0, task, hlog,
-							task.getTaskTracker().getHdd(), counters, null);
+							task.getTaskTracker(), counters, null);
 					hlog.info("in hard disk merge complete");
 					outDatum.setData(Type.hard_hard);
 					hardDatums.add(outDatum);

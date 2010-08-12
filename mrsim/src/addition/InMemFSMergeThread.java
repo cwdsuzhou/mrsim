@@ -121,7 +121,7 @@ public class InMemFSMergeThread extends Sim_entity {
 		//				this, tLog, copier.getTask().getTaskTracker().getHdd(), copier.getCounters());
 
 		Datum outmrg=HMergeQueue.mergeToHard(copier.ioSortFactor,inMemorySegments.size(), 
-				this, tLog, copier.getTask().getTaskTracker().getHdd(), copier.getCounters(), 
+				this, tLog, copier.getTask().getTaskTracker() , copier.getCounters(), 
 				inMemorySegments,null);// copier.getJobinfo().getCombiner()
 
 		//TODO update spilled records

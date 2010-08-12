@@ -276,7 +276,7 @@ public class HMapperStory extends HStory{
 
 			if(outSpills.size()>1){
 			outputSplit=HMergeQueue.mergeToHard(job.getIoSortFactor(),0, task,
-					hlog, task.getTaskTracker().getHdd(),counters, outSpills, jobinfo.getCombiner());
+					hlog, task.getTaskTracker(),counters, outSpills, jobinfo.getCombiner());
 			}else{
 				outputSplit=new Datum(outSpills.get(0));
 			}

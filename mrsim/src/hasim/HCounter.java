@@ -90,7 +90,7 @@ private static final Logger logger = Logger.getLogger(HCounter.class);
 			if(Math.abs(e.getValue())< 1e-6)
 				continue;
 //			String key=String.format("%25s", e.getKey()+"\t\t");
-			sb.append(pre+e.getKey()+"\t:\t"+format.format(e.getValue()));
+			sb.append(pre+e.getKey()+"\t"+format.format(e.getValue()));
 		}
 		return sb.toString();
 	}

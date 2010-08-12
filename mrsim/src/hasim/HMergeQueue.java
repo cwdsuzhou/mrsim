@@ -8,6 +8,7 @@ import eduni.simjava.Sim_entity;
 
 import hasim.CopyObject.Type;
 import hasim.core.CPU;
+import hasim.core.CpuTest;
 import hasim.core.Datum;
 import hasim.core.HDD;
 
@@ -364,8 +365,11 @@ extends HPriorityQueue implements HIterator {
 		} while(true);
 
 	}
-	public Datum merge(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter, HCombiner combiner){
+	public Datum merge(int factor,int inMem,Sim_entity operator,
+			HLogger mlog, HTaskTracker tracker, HCounter counter, HCombiner combiner){
+		
+		HDD hdd =tracker.getHdd();
+		CPU cpu=tracker.getCpu();
 		
 		int localInMem=0;
 		for (Datum seg : segments) {
@@ -495,6 +499,11 @@ extends HPriorityQueue implements HIterator {
 					counter.inc(CTag.COMBINE_INPUT_RECORDS, mrgSegmet.records);
 					mrgSegmet = combiner.combine(mrgSegmet);
 					counter.inc(CTag.COMBINE_OUTPUT_RECORDS, mrgSegmet.records);
+					/*cpu combine cost*/
+					cpu.work( combiner.cost(mrgSegmet),
+							operator.get_id(), HTAG.combine_with_cpu.id, mrgSegmet);
+					Datum.collectOne(operator, HTAG.combine_with_cpu.id);
+					
 
 					mlog.info("last combine pass combine output "+mrgSegmet.records );
 
@@ -507,8 +516,8 @@ extends HPriorityQueue implements HIterator {
 				
 				//read
 				if(sizeToRead>0){
-					hdd.read(sizeToRead,entity, HTAG.merge_read.id(), mrgSegmet);
-					Datum.collectOne(entity, HTAG.merge_read.id());
+					hdd.read(sizeToRead,operator, HTAG.merge_read.id(), mrgSegmet);
+					Datum.collectOne(operator, HTAG.merge_read.id());
 					counter.inc(CTag.FILE_BYTES_READ, sizeToRead);
 				}
 
@@ -564,6 +573,11 @@ extends HPriorityQueue implements HIterator {
 					mrgSegmet = combiner.combine(mrgSegmet);
 					counter.inc(CTag.COMBINE_OUTPUT_RECORDS, mrgSegmet.records);
 
+					/*cpu combine cost*/
+					cpu.work( combiner.cost(mrgSegmet),
+							operator.get_id(), HTAG.combine_with_cpu.id, mrgSegmet);
+					Datum.collectOne(operator, HTAG.combine_with_cpu.id);
+					
 					mlog.info("intermadiate combine pass combine out "+mrgSegmet.records );
 
 				}
@@ -574,9 +588,9 @@ extends HPriorityQueue implements HIterator {
 
 				{
 						
-						hdd.read( sizeToRead,entity , HTAG.merge_read.id(), mrgSegmet);
-						hdd.write(mrgSegmet.size, entity, HTAG.merg_write.id(),mrgSegmet);//modified
-						Datum.collect(entity, HTAG.merge_read.id(),HTAG.merg_write.id());
+						hdd.read( sizeToRead,operator , HTAG.merge_read.id(), mrgSegmet);
+						hdd.write(mrgSegmet.size, operator, HTAG.merg_write.id(),mrgSegmet);//modified
+						Datum.collect(operator, HTAG.merge_read.id(),HTAG.merg_write.id());
 						
 						counter.inc(CTag.SPILLED_RECORDS, mrgSegmet.records);
 						counter.inc(CTag.FILE_BYTES_WRITTEN, mrgSegmet.size);
@@ -603,10 +617,10 @@ extends HPriorityQueue implements HIterator {
 
 	}
 
-	public static Datum mergeToMem(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments, HCombiner combiner){
+	public static Datum mergeToMem(int factor,int inMem,Sim_entity operator,
+			HLogger mlog, HTaskTracker tracker, HCounter counter, Collection<Datum> segments, HCombiner combiner){
 		HMergeQueue queu=new HMergeQueue(segments);
-		Datum outmrg=queu.merge(factor, inMem, entity, mlog, hdd, counter, combiner);
+		Datum outmrg=queu.merge(factor, inMem, operator, mlog, tracker, counter, combiner);
 		
 		outmrg.setInMemory(true);
 		return outmrg;
@@ -614,12 +628,13 @@ extends HPriorityQueue implements HIterator {
 
 
 	public static Datum mergeToHard(int factor,int inMem,Sim_entity entity,
-			HLogger mlog, HDD hdd, HCounter counter, Collection<Datum> segments, HCombiner combiner){
+			HLogger mlog, HTaskTracker tracker, HCounter counter, Collection<Datum> segments, HCombiner combiner){
 		
 		HMergeQueue queu=new HMergeQueue(segments);
-		Datum outmrg=queu.merge(factor, inMem, entity, mlog, hdd, counter, combiner);
-			
 		
+		Datum outmrg=queu.merge(factor, inMem, entity, mlog, tracker, counter, combiner);
+			
+		HDD hdd = tracker.getHdd();
 		hdd.write(outmrg.size, entity, HTAG.merg_write.id(), outmrg);
 		
 		Datum outmrgReturn=(Datum) Datum.collectOne(entity, HTAG.merg_write.id());
