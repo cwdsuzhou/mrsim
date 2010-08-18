@@ -27,6 +27,11 @@ import javax.management.ImmutableDescriptor;
 public class HMergeQueue
 extends HPriorityQueue implements HIterator {
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger.getLogger(HMergeQueue.class);

@@ -23,6 +23,20 @@ public class DataHolder implements Comparable<Object>{
 	double exeTime;
 	double queu;
 	
+	@Override
+	public boolean equals(Object obj) {
+		DataHolder dh=(DataHolder)obj;
+		int dif = id-dh.id;
+		if(dif != 0 )return false;
+		double e=1e-6;
+		return job-dh.job<e &&
+		interval-dh.interval <e &&
+		submitTime -dh.submitTime<e  &&
+		startTime - dh.startTime<e  &&
+		stopTime - dh.stopTime<e  &&
+		exeTime - dh.exeTime<e  &&
+		queu -dh.queu<e ;
+	}
 	public DataHolder(int id, double interval, double job) {
 		this.id=id;
 		this.interval=interval;

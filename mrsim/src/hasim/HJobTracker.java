@@ -264,9 +264,9 @@ public class HJobTracker extends Sim_entity implements HLoggerInterface{
 	}
 	
 	
-	private void releaseTask(HTask task, double delay){
-		sim_schedule(get_id(), delay, HTAG.releaseTask.id(), task);
-	}
+//	private void releaseTask(HTask task, double delay){
+//		sim_schedule(get_id(), delay, HTAG.releaseTask.id(), task);
+//	}
 	private void releaseTask(HMapperTask task){
 		mTasksWorking.remove(task);// mTasksWorking.remove(task);
 		mTasksIdle.add(task);
