@@ -87,7 +87,7 @@ public class JsonConfig  {
 
 
 	public void setMaxIM(int maxIM) {
-		maxIM = maxIM;
+		this.maxIM = maxIM;
 	}
 	
 	public void setMaxSplitSize(double maxSplitSize) {
