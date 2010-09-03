@@ -2,32 +2,23 @@ package addition;
 
 import org.apache.log4j.Logger;
 
-import bsh.commands.dir;
 
 
 import hasim.HCopier;
 import hasim.HLogger;
 import hasim.HMergeQueue;
-import hasim.HReducerTask;
 import hasim.HStory;
 import hasim.HTAG;
-import hasim.HTask;
 import hasim.CopyObject.Type;
 import hasim.core.Datum;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import eduni.simjava.Sim_entity;
 import eduni.simjava.Sim_event;
-import eduni.simjava.Sim_predicate;
 import eduni.simjava.Sim_system;
-import eduni.simjava.Sim_type_p;
 
 public class InMemFSMergeThread extends Sim_entity {
 	/**
@@ -35,15 +26,11 @@ public class InMemFSMergeThread extends Sim_entity {
 	 */
 	private static final Logger logger = Logger.getLogger(InMemFSMergeThread.class);
 
-	static Random rnd=new Random(0);
-	ReduceCopier copier;
+	private ReduceCopier copier;
 	final HLogger hlog;
 	final double heartbeat=1.0;
 	public AtomicBoolean isMerging=new AtomicBoolean(false);
 	List<Datum> pendingShuffles=new ArrayList<Datum>();
-
-	//	private ReduceCopier copier;
-
 
 	private ShuffleRamManager ramManager;
 	HLogger tLog;
@@ -56,10 +43,8 @@ public class InMemFSMergeThread extends Sim_entity {
 	public void body() {
 		hlog.info("start entity");
 
-
 		while (Sim_system.running()) {
 			// if(jobsRunning.size()==0 && jobsWaiting.size()==0)
-
 
 			Sim_event ev = new Sim_event();
 			sim_get_next(ev);
@@ -69,7 +54,6 @@ public class InMemFSMergeThread extends Sim_entity {
 			if (tag == HTAG.END_OF_SIMULATION) {
 				hlog.info("END_OF_SIMULATION TAG", Sim_system.clock());
 				logger.info(get_name()+" END_OF_SIMULATION "+ Sim_system.clock());
-
 				break;
 			}
 
@@ -84,7 +68,6 @@ public class InMemFSMergeThread extends Sim_entity {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public Datum doInMemMerge() {
 
 		copier.memoryLock.lock();
@@ -189,62 +172,34 @@ public class InMemFSMergeThread extends Sim_entity {
 	}
 
 	public boolean oneStory(){
-//		sim_schedule(get_id(), heartbeat, HTAG.check_doMerge.id);
 
 		int shuffleCount=1;
 		List<Datum> pendingShuffles=new ArrayList<Datum>();
+		
 		while (Sim_system.running()) {
-			// if(jobsRunning.size()==0 && jobsWaiting.size()==0)
-
-
 			Sim_event ev = new Sim_event();
 			sim_get_next(ev);
 			int tag = ev.get_tag();
-			//			sim_schedule(get_id(), 1.0, HTAG.check_pending_shuffles.id());
-
 
 			if (tag == HTAG.END_OF_SIMULATION) {
 				hlog.info("MEMORY END_OF_SIMULATION TAG");
-
 				return true;
 			}
 
-			if( tag== HTAG.check_doMerge.id){
-
-				
-//				sim_schedule(get_id(), heartbeat, HTAG.check_doMerge.id);
-
-			}
 			if (tag == HTAG.shuffle.id()){
-
-				
 				Datum mapOutputLoc=(Datum)ev.get_data();				
-
 				ramManager.incNumPendingRequests();
 				pendingShuffles.add(mapOutputLoc);
-
 				tryMerge();
-
-				
 				tryShuffle(pendingShuffles);
-				
-				
-			
-
-
 			}
 
 
 			if ( tag == HTAG.shuffle_return.id()){
 				
-//				tryMerge();
-				
 				tLog.info("shuffle resutrn: "+ shuffleCount);
 				shuffleCount++;
-
 				Datum mapOutput=(Datum)ev.get_data();
-
-
 
 				// Close the in-memory file
 				ramManager.closeInMemoryFile(mapOutput.size);
@@ -261,7 +216,6 @@ public class InMemFSMergeThread extends Sim_entity {
 				tryShuffle(pendingShuffles);
 
 			}
-
 
 		}
 		return false;
@@ -282,16 +236,13 @@ public class InMemFSMergeThread extends Sim_entity {
 
 		}
 	}
+	
 	private void tryMerge(){
 		if(! ramManager.waitForDataToMerge() ){
 			tLog.info("MEMORY waitforDataToMerge: "+ ramManager.waitForDataToMerge());
-
 			Datum outmrg=doInMemMerge();
-
 			assert outmrg !=null;
 			copier.addFileOnDisk(outmrg);
-
-
 		}
 	}
 
@@ -315,26 +266,19 @@ public class InMemFSMergeThread extends Sim_entity {
 
 		// Are map-outputs compressed?
 		if (copier.getJobinfo().getJob().isUseCompression()) {
-
+			//TODO do compression code
 		}
 
 		Datum mapOutput = new Datum(mapOutputLoc, true);
 		mapOutput.setInMemory(true);
 
-		//		logger.info("Read " + mapOutputLength + " bytes from map-output for "
-		//				+ mapOutputLoc.getLocation());
-
 		tLog.info("Read " + mapOutputLength + " bytes from map-output for "
 				+ mapOutputLoc.getLocation());
-
-		//		sim_schedule(get_id(), 500+ rnd.nextInt(100), HTAG.shuffle_return.id(), mapOutput);
 
 		HCopier hcopier=copier.getTask().getJobTracker().getCopier();
 		hcopier.copy(mapOutput.getLocation(), copier.getTask().getLocation(),
 				mapOutputLength, this, HTAG.shuffle_return.id(),
 				mapOutput, Type.hard_mem);
-
-
 	}
 
 	public void stopEntity() {

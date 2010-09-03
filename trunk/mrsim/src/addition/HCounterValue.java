@@ -11,7 +11,7 @@ public class HCounterValue {
 		this.tag=tag;
 	}
 	
-	//TODO need to synchronize
+	//TODO check the need to be synchronize
 	synchronized public double inc(double value){
 		double r= counter.inc(tag, value);
 		return r;
@@ -26,7 +26,7 @@ public class HCounterValue {
 		return "counter "+tag+":"+counter.get(tag);
 	}
 	
-	public double get(){
+	synchronized public double get(){
 		return counter.get(tag);
 	}
 }
