@@ -48,7 +48,6 @@ public class LocalFSMerger extends Sim_entity {
 	final HLogger hlog;
 	ReduceCopier copier;
 
-	// private HReducerTask task;
 	public LocalFSMerger(String name) {
 		super(name);
 		this.hlog=new HLogger(name);
@@ -66,7 +65,6 @@ public class LocalFSMerger extends Sim_entity {
 	
 	public boolean oneStory(){
 		while (Sim_system.running()) {
-			// if(jobsRunning.size()==0 && jobsWaiting.size()==0)
 
 			Sim_event ev = new Sim_event();
 			sim_get_next(ev);
@@ -89,11 +87,8 @@ public class LocalFSMerger extends Sim_entity {
 			}
 
 //			if (tag == HTAG.all_shuffles_finished.id()) {
-//				
 //				tLog.info("DSK-Merger "+ HTAG.toString(tag));
-//
 //				Datum rDatum=doInDiskMerg();
-//
 //				sim_schedule(get_id(), 0.0, HTAG.all_shuffles_finished_return
 //						.id(), rDatum);
 //				continue;
@@ -101,14 +96,9 @@ public class LocalFSMerger extends Sim_entity {
 
 			if (tag == HTAG.shuffle_return.id()) {
 				tLog.info("DSK-Merger "+ HTAG.toString(tag));
-				
-				
 				Datum mapOutput = (Datum) ev.get_data();
-
 				copier.noteCopiedMapOutput(mapOutput);
-
 //				copier.lock.lock();
-				
 				copier.addFileOnDisk(mapOutput);
 				
 				if (copier.mapOutputFilesOnDisk.size() >= (2 * copier.ioSortFactor - 1)) {
@@ -117,14 +107,9 @@ public class LocalFSMerger extends Sim_entity {
 					tLog.info("DSK-Merger "+get_name() + " Thread waiting: ");
 				}
 //				copier.lock.unlock();
-				
 				sim_schedule(copier.getTask().get_id(), 0.0, HTAG.shuffle_return.id(), mapOutput);
-
 				continue;
 			}
-			
-			
-			
 		}
 		return false;
 	}
@@ -185,11 +170,6 @@ public class LocalFSMerger extends Sim_entity {
 
 		
 		// 2. Start the on-disk merge process
-//		HMergeQueue mrgQue = new HMergeQueue(mapFiles);
-		// (read, write valueCoutnters);
-//		Datum outmrg=mrgQue.mergeMapper(copier.ioSortFactor, 0, this, tLog,
-//				copier.getTask().getTaskTracker().getHdd(), copier.getCounters());
-		
 		Datum outmrg=HMergeQueue.mergeToHard(copier.ioSortFactor,0, this, tLog,	
 				copier.getTask().getTaskTracker() , 
 				copier.getCounters(),mapFiles, null );// copier.getJobinfo().getCombiner()
@@ -216,14 +196,9 @@ public class LocalFSMerger extends Sim_entity {
 
 		Datum mapOutput = new Datum(mapOutputLoc, false);
 		mapOutput.setInMemory(false);
-		// rfs.read(size, user, returnTag, object)
-		// fs.write()
-//		logger.info("Read " + mapOutputLength + " bytes from map-output for "
-//				+ mapOutputLoc.getLocation());
 		tLog.info("DSK-Merger Read " + mapOutputLength + " bytes from map-output for "
 				+ mapOutputLoc.getLocation());
 
-//		sim_schedule(get_id(), 600+ rnd.nextInt(100), HTAG.shuffle_return.id(), mapOutput);
 		HCopier hcopier=copier.getTask().getJobTracker().getCopier();
 		hcopier.copy(mapOutput.getLocation(), copier.getTask().getLocation(),
 				mapOutputLength, this, HTAG.shuffle_return.id(),
@@ -231,18 +206,8 @@ public class LocalFSMerger extends Sim_entity {
 		
 	}
 
-	static Random rnd=new Random(0);
-
 	private AtomicBoolean isMerging = new AtomicBoolean(false);
 
-//	public Datum lastMergeAndJoin(String msg) {
-//		sim_schedule(get_id(), 0.0, HTAG.all_shuffles_finished.id());
-//		Sim_predicate p = new Sim_type_p(HTAG.all_shuffles_finished_return.id());
-//		Sim_event ev = new Sim_event();
-//
-//		sim_wait_for(p, ev);
-//		return (Datum)ev.get_data();
-//	}
 
 	public void stopEntity() {
 		sim_schedule(get_id(), 0.0, HTAG.END_OF_SIMULATION);
